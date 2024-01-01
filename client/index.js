@@ -5,10 +5,20 @@ const MerkleTree = require('../utils/MerkleTree');
 const serverUrl = 'http://localhost:1225';
 
 async function main() {
-  // TODO: how do we prove to the server we're on the nice list? 
+  if (!process.env.GIFT_FOR) {
+      throw new Error('GIFT_FOR env variable is empty');
+  }
+
+  const index = niceList.findIndex((item) => item === process.env.GIFT_FOR);
+
+  const merkleTree = new MerkleTree(niceList);
+  const proof = merkleTree.getProof(index);
+  const root = merkleTree.getRoot();
 
   const { data: gift } = await axios.post(`${serverUrl}/gift`, {
-    // TODO: add request body parameters here!
+      proof,
+      root,
+      leaf: process.env.GIFT_FOR,
   });
 
   console.log({ gift });
